@@ -213,7 +213,7 @@ class WebServer {
             builder.append("\n");
             builder.append("Result is: " + result);
           }
-          catch (NumberFormatException exc) {
+          catch (NumberFormatException | StringIndexOutOfBoundsException exc) {
             builder.append("Invalid Input\n");
           }
         } else if (request.contains("github?")) {
