@@ -213,6 +213,9 @@ class WebServer {
             builder.append("Result is: " + result);
           }
           catch (NumberFormatException | StringIndexOutOfBoundsException exc) {
+            builder.append("HTTP/1.1 400 BAD REQUEST\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
             builder.append("Invalid Input\n");
           }
         } else if (request.contains("github?")) {
