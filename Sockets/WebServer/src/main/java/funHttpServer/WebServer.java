@@ -248,15 +248,17 @@ class WebServer {
           builder.append("HTTP/1.1 200 OK\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
-          builder.append("Check the todos mentioned in the Java source file");
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
 
           JSONArray repos = (JSONArray) JSONValue.parse(json_string);
 
-          System.out.println("\nLogin\t\tID\t\tFull Name");
+          builder.append("\nLogin\t\tID\t\tFull Name");
           for (Object i : repos) {
-            System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
+            //System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
+            //((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
+
+            builder.append(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
                     ((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
           }
           System.out.println("=========================");
