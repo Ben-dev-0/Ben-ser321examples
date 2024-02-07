@@ -16,6 +16,10 @@ write a response back
 
 package funHttpServer;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -226,11 +230,20 @@ class WebServer {
           //     then drill down to what you care about
           // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
           //     "/repos/OWNERNAME/REPONAME/contributors"
+          /*
+          * Implement your webserver so that when calling host:PORT/github?query=users/amehlhase316/repos
+          * you should get a response with all my public repos.
+          * You should parse that JSON in your code and respond with some data.
+          * The data you should return is the full_name of the repos, the ids of the repos, login of the owner of each repo
+          *
+          * login: id full_name
+          */
 
           Map<String, String> query_pairs = new LinkedHashMap<String, String>();
           query_pairs = splitQuery(request.replace("github?", ""));
-          String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-          System.out.println(json);
+          String json_string = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+
+          //System.out.println(json);
 
           builder.append("HTTP/1.1 200 OK\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
@@ -238,6 +251,14 @@ class WebServer {
           builder.append("Check the todos mentioned in the Java source file");
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
+
+          JSONArray repos = (JSONArray) JSONValue.parse(json_string);
+
+          System.out.println("\nREPOS:");
+          for (Object i : repos) {
+            System.out.println(i);
+          }
+          System.out.println("=========================");
 
         } else {
           // if the request is not recognized at all
