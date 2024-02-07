@@ -256,7 +256,8 @@ class WebServer {
 
           System.out.println("\nREPOS:");
           for (Object i : repos) {
-            System.out.println(i);
+            System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ": " +
+                    ((JSONObject)i).get("id") + " " + ((JSONObject)i).get("full_name"));
           }
           System.out.println("=========================");
 
