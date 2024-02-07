@@ -254,7 +254,7 @@ class WebServer {
 
           JSONArray repos = (JSONArray) JSONValue.parse(json_string);
 
-          System.out.println("\nLogin\t\tID\tFull Name");
+          System.out.println("\nLogin\t\tID\t\tFull Name");
           for (Object i : repos) {
             System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
                     ((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
