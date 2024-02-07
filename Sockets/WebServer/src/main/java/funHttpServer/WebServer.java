@@ -253,15 +253,14 @@ class WebServer {
 
           JSONArray repos = (JSONArray) JSONValue.parse(json_string);
 
-          builder.append("\nLogin\t\tID\t\tFull Name");
+          builder.append("\nLogin\t\tID\t\tFull Name\n");
           for (Object i : repos) {
             //System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
             //((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
 
             builder.append(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
-                    ((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
+                    ((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name") + "\n");
           }
-          System.out.println("=========================");
 
         } else {
           // if the request is not recognized at all
