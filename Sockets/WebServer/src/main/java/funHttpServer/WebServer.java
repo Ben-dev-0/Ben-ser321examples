@@ -122,7 +122,8 @@ class WebServer {
       // Generate an appropriate response to the user
       if (request == null) {
         response = "<html>Illegal request: no GET</html>".getBytes();
-      } else {
+      }
+      else {
         // create output buffer
         StringBuilder builder = new StringBuilder();
         // NOTE: output from buffer is at the end
@@ -141,7 +142,8 @@ class WebServer {
           builder.append("\n");
           builder.append(page);
 
-        } else if (request.equalsIgnoreCase("json")) {
+        }
+        else if (request.equalsIgnoreCase("json")) {
           // shows the JSON of a random image and sets the header name for that image
 
           // pick a index from the map
@@ -160,7 +162,8 @@ class WebServer {
           builder.append("\"image\":\"").append(url).append("\"");
           builder.append("}");
 
-        } else if (request.equalsIgnoreCase("random")) {
+        }
+        else if (request.equalsIgnoreCase("random")) {
           // opens the random image page
 
           // open the index.html
@@ -172,7 +175,8 @@ class WebServer {
           builder.append("\n");
           builder.append(new String(readFileInBytes(file)));
 
-        } else if (request.contains("file/")) {
+        }
+        else if (request.contains("file/")) {
           // tries to find the specified file and shows it or shows an error
 
           // take the path and clean it. try to open the file
@@ -190,7 +194,8 @@ class WebServer {
             builder.append("\n");
             builder.append("File not found: " + file);
           }
-        } else if (request.contains("multiply?")) {
+        }
+        else if (request.contains("multiply?")) {
           // This multiplies two numbers, there is NO error handling, so when
           // wrong data is given this just crashes
           try {
@@ -217,7 +222,8 @@ class WebServer {
             builder.append("\n");
             builder.append("Invalid Input\n");
           }
-        } else if (request.contains("github?")) {
+        }
+        else if (request.contains("github?")) {
           try {
             Map<String, String> query_pairs = new LinkedHashMap<String, String>();
             query_pairs = splitQuery(request.replace("github?", ""));
@@ -307,19 +313,20 @@ class WebServer {
             builder.append("Usage: /bigLetters?str=&ltinput string&gt&font=&lt0 or 1&gt");
           }
 
-        } else if (request.contains("gFib?")) {
+        }
+        else if (request.contains("gFib?")) {
           try {
             Map<String, String> query_pairs = new LinkedHashMap<String, String>();
             // extract path parameters
-            query_pairs = splitQuery(request.replace("multiply?", ""));
+            query_pairs = splitQuery(request.replace("gFib?", ""));
 
             // extract required fields from parameters
             Integer n = Integer.parseInt(query_pairs.get("n"));
+            Integer f0 = Integer.parseInt(query_pairs.get("f0"));
             Integer f1 = Integer.parseInt(query_pairs.get("f1"));
-            Integer f2 = Integer.parseInt(query_pairs.get("f2"));
 
             // do math
-            Integer result = gFib(n,f1,f2);
+            Integer result = gFib(n,f0,f1);
 
             // Generate response
             builder.append("HTTP/1.1 200 OK\n");
@@ -327,13 +334,27 @@ class WebServer {
             builder.append("\n");
             builder.append("Result is: " + result);
           }
-          catch (NumberFormatException | StringIndexOutOfBoundsException exc) {
+          catch (NumberFormatException exc) {
             builder.append("HTTP/1.1 400 BAD REQUEST\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
-            builder.append("Invalid Input\n");
+            builder.append("Invalid Input<br>Usage: /gFib?n=&ltint&gt&f0=&ltint&gt&f1=&ltint&gt\n");
           }
-        } else {
+          catch (IllegalArgumentException exc) {
+            builder.append("HTTP/1.1 400 BAD REQUEST\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid Input: n may not be less than 0\n");
+            exc.printStackTrace();
+          }
+          catch (Exception exc) {
+            builder.append("HTTP/1.1 400 BAD REQUEST\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid Input<br>Usage: /gFib?n=&ltint&gt&f0=&ltint&gt&f1=&ltint&gt\n");
+          }
+        }
+        else {
           // if the request is not recognized at all
 
           builder.append("HTTP/1.1 400 Bad Request\n");
@@ -375,10 +396,14 @@ class WebServer {
     return output;
   }
 
-  public static int gFib(int n, int f1, int f2) {
-    int[] seq = {f1, f2, 0};
+  public static int gFib(int n, int f0, int f1) {
+    if (n < 0) throw new IllegalArgumentException();
+    else if (n == 0) return f0;
+    else if (n == 1) return f1;
 
-    for (int i = 2; i < n; i++) {
+    int[] seq = {f0, f1, 0};
+
+    for (int i = 2; i <= n; i++) {
       seq[2] = seq[0] + seq[1];
       seq[0] = seq[1];
       seq[1] = seq[2];

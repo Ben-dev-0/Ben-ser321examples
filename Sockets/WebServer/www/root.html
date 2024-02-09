@@ -3,11 +3,13 @@
 		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 	</head>
 	<body>
-		<h3>You can make the following GET requests<h3>
+		<h3>You can make the following GET requests</h3>
 		<ul>
 			<li>/file/sample.html -- returns the content of the file sample.html</li>
 			<li>/json -- returns a json of the /random request</a></li>
 			<li>/random -- returns index.html</a></li>
+			<li>/bigLetters?str=&ltinput&gt&font=&lt0 or 1&gt -- returns str in big word art, non-letters are interpreted as spaces. there are 2 available fonts. ex: /bigLetters?str=HELLO&font=0</li>
+			<li>/gFib?n=&ltint&gt&f0=&ltint&gt&f1=&ltint&gt -- returns fib(n) but with the chosen base cases for fib(0) and fib(1). ex: /gFib?n=10&f0=-3&f1=5</li>
 		</ul>
 		<h3>File Structure in www (you can use /file/www/FILENAME):</h3>
 		${links}
