@@ -22,12 +22,7 @@ import org.json.simple.JSONValue;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.nio.charset.Charset;
 
 class WebServer {
@@ -223,45 +218,121 @@ class WebServer {
             builder.append("Invalid Input\n");
           }
         } else if (request.contains("github?")) {
-          // pulls the query from the request and runs it with GitHub's REST API
-          // check out https://docs.github.com/rest/reference/
-          //
-          // HINT: REST is organized by nesting topics. Figure out the biggest one first,
-          //     then drill down to what you care about
-          // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
-          //     "/repos/OWNERNAME/REPONAME/contributors"
-          /*
-          * Implement your webserver so that when calling host:PORT/github?query=users/amehlhase316/repos
-          * you should get a response with all my public repos.
-          * You should parse that JSON in your code and respond with some data.
-          * The data you should return is the full_name of the repos, the ids of the repos, login of the owner of each repo
-          *
-          * login: id full_name
-          */
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            query_pairs = splitQuery(request.replace("github?", ""));
+            String json_string = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+            String output = "";
 
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          query_pairs = splitQuery(request.replace("github?", ""));
-          String json_string = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+            JSONArray repos = (JSONArray) JSONValue.parse(json_string);
+            if (repos == null) throw new NullPointerException();
 
-          //System.out.println(json);
+            for (Object i : repos) {
+              output += ((JSONObject) ((JSONObject) i).get("owner")).get("login") + ":    " +
+                      ((JSONObject) i).get("id") + "    " + ((JSONObject) i).get("full_name") + "<br>";
+            }
 
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          // TODO: Parse the JSON returned by your fetch and create an appropriate
-          // response based on what the assignment document asks for
-
-          JSONArray repos = (JSONArray) JSONValue.parse(json_string);
-
-          builder.append("\nLogin\t\tID\t\tFull Name\n");
-          for (Object i : repos) {
-            //System.out.println(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
-            //((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name"));
-
-            builder.append(((JSONObject)((JSONObject)i).get("owner")).get("login") + ":\t" +
-                    ((JSONObject)i).get("id") + "\t" + ((JSONObject)i).get("full_name") + "\n");
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("\nLogin    ID    Full Name<br>");
+            builder.append(output);
+          }
+          catch (ClassCastException exc) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Error: Not a list of repos");
+          }
+          catch (NullPointerException exc) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Error: User or list not found");
+          }
+          catch (Exception exc) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Error,<br>usage: github?query=users/&ltUser&gt/repos");
           }
 
+        }
+        else if (request.contains("bigLetters?")) {
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            // extract path parameters
+            query_pairs = splitQuery(request.replace("bigLetters?", ""));
+
+            // extract required fields from parameters
+            String str = query_pairs.get("str");
+            int font = Integer.parseInt(query_pairs.get("font"));
+            int fontHeight = 0;
+            File letters = null;
+            String output = "";
+
+            switch (font) {
+              case 0:
+                letters = new File("src/main/java/funHttpServer/letters0.txt");
+                fontHeight = 6;
+                break;
+              case 1:
+                letters = new File("src/main/java/funHttpServer/letters1.txt");
+                fontHeight = 7;
+                break;
+              default:
+                break;
+            }
+
+            for (char c : str.toCharArray()) {
+              output += bigLetter(Character.toUpperCase(c), letters, fontHeight);
+            }
+
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n<p style=\"font-family:'Consolas'\">");
+            builder.append(output);
+            builder.append("</p>");
+          }
+          catch (NullPointerException | NumberFormatException exc) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("No such font<br>Usage: /bigLetters?str=&ltinput string&gt&font=&lt0 or 1&gt");
+          }
+          catch (Exception exc) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Usage: /bigLetters?str=&ltinput string&gt&font=&lt0 or 1&gt");
+          }
+
+        } else if (request.contains("gFib?")) {
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            // extract path parameters
+            query_pairs = splitQuery(request.replace("multiply?", ""));
+
+            // extract required fields from parameters
+            Integer n = Integer.parseInt(query_pairs.get("n"));
+            Integer f1 = Integer.parseInt(query_pairs.get("f1"));
+            Integer f2 = Integer.parseInt(query_pairs.get("f2"));
+
+            // do math
+            Integer result = gFib(n,f1,f2);
+
+            // Generate response
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Result is: " + result);
+          }
+          catch (NumberFormatException | StringIndexOutOfBoundsException exc) {
+            builder.append("HTTP/1.1 400 BAD REQUEST\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid Input\n");
+          }
         } else {
           // if the request is not recognized at all
 
@@ -282,6 +353,39 @@ class WebServer {
     return response;
   }
 
+  /**
+   * Returns the big ascii letter string of the character input, all non-letter outputs result in a space
+   */
+  public static String bigLetter(char c, File file, int height) throws IOException {
+    Scanner fsc = new Scanner(file);
+    String output = "";
+
+    while (fsc.hasNextLine() && fsc.next().compareTo(c+"") != 0);
+
+    if (fsc.hasNextLine()) {
+      for (int i = 0; fsc.hasNextLine() && i < height+1; i++) {
+      output += fsc.nextLine().replace(" ", "&nbsp;") + "<br>";
+      }
+    }
+    else {
+      for (int i = 0; i < height; i++) output += "<br>";
+    }
+
+    fsc.close();
+    return output;
+  }
+
+  public static int gFib(int n, int f1, int f2) {
+    int[] seq = {f1, f2, 0};
+
+    for (int i = 2; i < n; i++) {
+      seq[2] = seq[0] + seq[1];
+      seq[0] = seq[1];
+      seq[1] = seq[2];
+    }
+
+    return seq[2];
+  }
   /**
    * Method to read in a query and split it up correctly
    * @param query parameters on path
